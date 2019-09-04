@@ -1,17 +1,17 @@
 import json
 import sqlite3
-
-positive = []
-negative = []
-
+import re
 
 class Sentence:
     '''object representing a sentence'''
     def __init__(self, text):
         '''format the passed in text'''
-        self.text = text.lower()
+
+        self.text = re.sub('[^a-z ]','', text.lower())
+        #print(self.text)
         self.__dict_repr = {}
         self.words = self.text.split(" ") #can be adjusted for N-gram models
+
         #TODO: regex expression to remove punctuation and numbers
 
     def tokenize(self):
@@ -66,7 +66,7 @@ class Sentiment:
         for obj in self.training_data:
             if obj[1] == True:
                 sen = Sentence(obj[0])
-
+                #print(obj[0])
                 for word,freq in sen.dict_repr.items():
                     try:
                         self.positive[word] += freq
@@ -93,7 +93,7 @@ class Sentiment:
             del self.positive[dupe]
             del self.negative[dupe]
 
-        print(self.positive)
+        #print(self.positive)
 
 
 
@@ -105,8 +105,10 @@ class Sentiment:
         for word in sen.words:
             if word in self.positive.keys():
                 score += self.positive[word] / total_count
+                print("Positive word: " + word + ". Score: " + str(score) + "\n")
             elif word in self.negative.keys():
                 score -= self.negative[word] / total_count
+                print("Negative word: " + word + ". Score: " + str(score) + "\n")
         if score > 0:
             return "Positive"
         elif score < 0:
